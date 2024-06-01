@@ -97,6 +97,27 @@ static inline u8 digitalRead(size_t pin) {
 static inline void Serial_begin(size_t speed) {
     stdio_usb_init();
 }
+static inline bool Serial_available() {
+    // USB-Serial is always available : )
+    return true;
+}
+static inline char Serial_read() {
+    return getchar();
+}
+static inline void Serial_write(const u8* data, size_t size) {
+    // This is to avoid CR/LF. However, since it uses a different interface, we cannot set the size of the data.
+    // This wastes a few cycles, but this is the only option without modification to Pico-SDK or some trickry
+    for (size_t i = 0; i != size; ++i) {
+        putchar_raw(data[i]);
+    }
+}
+static inline size_t Serial_readBytes(u8* data, size_t size) {
+    // This is to avoid CR/LF. See reasoning behind loop above in Serial_write
+    for (size_t i = 0; i != size; ++i) {
+       data[i] = getchar();
+    }
+    return size;
+}
 static inline void Serial1_begin(size_t speed) {
     uart_init(uart0, speed);
 }
